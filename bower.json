@@ -1,0 +1,32 @@
+{
+  "name": "coursera-full-text-search",
+  "version": "0.0.0",
+  "authors": [
+    "Harsh Singh <hisingh1@gmail.com>"
+  ],
+  "description": "Search videos inside coursera via subtitle files",
+  "main": "coursera-fts.js",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "coursera",
+    "seaarcher",
+    "search",
+    "video",
+    "class",
+    "where",
+    "did",
+    "they",
+    "say"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
