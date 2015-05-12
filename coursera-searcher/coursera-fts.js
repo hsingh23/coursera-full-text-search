@@ -362,13 +362,13 @@ var getCourse = function() {
 var fetchSubtitles = function(dbResult) {
     dbResult = dbResult || {
         _id: getCourse(),
-        data: srts
+        data: {}
     };
     var srts = dbResult.data;
     var startIndex = srts.length || 0;
     var srtPromises = [];
     $.each(subtitleUrls, function(i, subtitle) {
-        if (srts.hasOwnProperty(i)) {
+        if (!srts.hasOwnProperty(i)) {
             var promise = Q($.get(subtitle.attributes.href.textContent, function(videoIndex) {
                 return function(srt) {
                     srts[videoIndex] = srt;
