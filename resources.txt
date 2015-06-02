@@ -1,0 +1,2 @@
+http://wiki.greasespot.net/Greasemonkey_Manual:API
+http://tampermonkey.net/ # play with the coursera script yourself

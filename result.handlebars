@@ -1,0 +1,32 @@
+<style>
+	video {
+		display: block;
+		margin: auto;
+	}
+	a:visited {
+		color: #D13924;
+	}
+</style>
+{{#each this as |section sectionID|}} 
+{{!-- section objects --}}
+	<div class="section">
+		<h1>
+			{{this.header}}
+		</h1>
+
+			<video width="640px" height="480px" controls id="video_fts_{{@key}}" class="center">
+			  <source type="video/mp4" id="source_fts_{{@key}}">
+			</video>
+		{{#each this.videos as |video videoID|}}
+			{{!-- Video object --}}
+			<h2>{{video.title}}</h2>
+			<ul>
+				{{#each this.quotes}}
+				<li>
+					[{{0}}] <a class="fullTextSearch"  return false;" data-section="{{sectionID}}" data-video="{{video.link}}" data-time="{{0}}">{{1}}</a>
+				</li>
+				{{/each}}
+			</ul>
+		{{/each}}
+	</div>
+{{/each}}

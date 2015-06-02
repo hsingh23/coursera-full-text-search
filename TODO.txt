@@ -1,0 +1,10 @@
+Integrate the new coursera 
+    https://www.coursera.org/api/opencourse.v1/course/future-of-energy
+    https://www.coursera.org/api/opencourse.v1/video/59q9w7cBEeS8fSIACySbHw
+    
+    
+    https://github.com/coursera-dl/coursera/blob/master/coursera/coursera_dl.py
+        get_on_demand_video_url
+        
+    OPENCOURSE_CONTENT_URL = 'https://www.coursera.org/api/opencourse.v1/course/{class_name}'
+    OPENCOURSE_VIDEO_URL = 'https://www.coursera.org/api/opencourse.v1/video/{video_id}'
