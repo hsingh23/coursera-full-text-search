@@ -16,34 +16,39 @@
 // ==/UserScript==
 // Picomodal
 
-//https://class.coursera.org/socialpsychology-002/lecture
+//https://class.coursera.org/dsp-005/lecture
 
 // (function() {var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {}; templates['result'] = template({"1":function(depth0,helpers,partials,data,blockParams) {var stack1, helper, alias1=this.escapeExpression, alias2=helpers.helperMissing, alias3="function"; return "  <div class=\"section\">\n       <h1>\n          "+ alias1(this.lambda((depth0 != null ? depth0.header : depth0), depth0)) + "\n     </h1>\n\n           <video width=\"640px\" height=\"480px\" controls id=\"video_fts_"+ alias1(((helper = (helper = helpers.key || (data && data.key)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(depth0,{"name":"key","hash":{},"data":data,"blockParams":blockParams}) : helper))) + "\" class=\"center\">\n             <source type=\"video/mp4\" id=\"source_fts_"+ alias1(((helper = (helper = helpers.key || (data && data.key)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(depth0,{"name":"key","hash":{},"data":data,"blockParams":blockParams}) : helper))) + "\">\n           </video>\n"+ ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.videos : depth0),{"name":"each","hash":{},"fn":this.program(2, data, 2, blockParams),"inverse":this.noop,"data":data,"blockParams":blockParams})) != null ? stack1 : "") + "  </div>\n"; },"2":function(depth0,helpers,partials,data,blockParams) {var stack1; return "           <h2>"+ this.escapeExpression(this.lambda(((stack1 = blockParams[0][0]) != null ? stack1.title : stack1), depth0)) + "</h2>\n            <ul>\n"+ ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.quotes : depth0),{"name":"each","hash":{},"fn":this.program(3, data, 0, blockParams),"inverse":this.noop,"data":data,"blockParams":blockParams})) != null ? stack1 : "") + "          </ul>\n"; },"3":function(depth0,helpers,partials,data,blockParams) {var stack1, helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression, alias4=this.lambda; return "             <li>\n                  ["+ alias3(((helper = (helper = helpers['0'] || (depth0 != null ? depth0['0'] : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"0","hash":{},"data":data}) : helper))) + "] <a class=\"fullTextSearch\"  return false;\" data-section=\""+ alias3(alias4(blockParams[2][1], depth0)) + "\" data-video=\""+ alias3(alias4(((stack1 = blockParams[1][0]) != null ? stack1.link : stack1), depth0)) + "\" data-time=\""+ alias3(((helper = (helper = helpers['0'] || (depth0 != null ? depth0['0'] : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"0","hash":{},"data":data,"blockParams":blockParams}) : helper))) + "\">"+ alias3(((helper = (helper = helpers['1'] || (depth0 != null ? depth0['1'] : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"1","hash":{},"data":data,"blockParams":blockParams}) : helper))) + "</a>\n              </li>\n"; },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data,blockParams) {var stack1; return "<style>\n   video {\n       display: block;\n       margin: auto;\n }\n a:visited {\n       color: #D13924;\n   }\n</style>\n"+ ((stack1 = helpers.each.call(depth0,depth0,{"name":"each","hash":{},"fn":this.program(1, data, 2, blockParams),"inverse":this.noop,"data":data,"blockParams":blockParams})) != null ? stack1 : ""); },"useData":true,"useBlockParams":true}); })();
+
 
 var SECOND = 1,
     MINUTE = 60 * SECOND,
     HOUR = 60 * MINUTE;
 
-var subtitleUrls = document.querySelectorAll("a[title='Subtitles (srt)']");
-var videoUrls = [];
-var sectionHeader = {};
+// first check location to see if you have an on demand course: https://www.coursera.org/learn/{course-name:future-of-energy}/lecture/LGlcL/introduction-to-energy-part-1, or and old course: https://class.coursera.org/{course-name}/lecture
+
+
+// new course, make api calls and create subtitle_urls, video_urls, and section_header
+var SUBTITLE_URLS = document.querySelectorAll("a[title='Subtitles (srt)']");
+var VIDEO_URLS = [];
+var SECTION_HEADER = {};
 //header lookup to get section for sorting
 $(".course-item-list-header h3").each(function(i, obj) {
     var t = obj.textContent.trim();
-    sectionHeader[i] = t;
-    sectionHeader[t] = i;
+    SECTION_HEADER[i] = t;
+    SECTION_HEADER[t] = i;
 });
 
-$.each(subtitleUrls, function(i, subtitleLink) {
+$.each(SUBTITLE_URLS, function(i, subtitleLink) {
     var header = subtitleLink.parentElement.parentElement.parentElement.previousSibling.querySelector("h3").textContent.trim();
     try {
         var obj = {
-            section: sectionHeader[header],
+            section: SECTION_HEADER[header],
             header: header,
             text: subtitleLink.parentElement.parentElement.querySelector(".lecture-link").text.trim(),
             link: subtitleLink.parentElement.querySelector('a[href*="download.mp4"]').href
         };
-        videoUrls.push(obj);
+        VIDEO_URLS.push(obj);
     } catch (e) {
         console.error("no video for %o - perhaps videos are disabled", subtitleLink);
     }
@@ -51,7 +56,7 @@ $.each(subtitleUrls, function(i, subtitleLink) {
 });
 
 var db = new PouchDB('coursera_fts');
-var subtitles = {};
+var SUBTITLES = {};
 
 
 // We construct 2 indexes, txtIndex for knowing which video contains the text so that we can rank properly and lunrIndex for the srt segments that contain where in the video something was said
@@ -66,7 +71,7 @@ var lunrIndex = lunr(function() {
 
 window.lunrIndex = lunrIndex;
 //window.txtIndex = txtIndex;
-window.subtitles = subtitles;
+window.SUBTITLES = SUBTITLES;
 window.db = db;
 
 var addLunrDocuments = function(videoIndex, srt) {
@@ -83,7 +88,7 @@ var addLunrDocuments = function(videoIndex, srt) {
                 "id": id,
                 "body": body
             });
-            subtitles[id] = body;
+            SUBTITLES[id] = body;
         } catch (e) {
             console.log("Error %o for video %d when parsing segment %o in segments %o", e, videoIndex, segment, segments);
         }
@@ -117,7 +122,7 @@ var fetchSubtitles = function(dbResult) {
     var srts = dbResult.data;
     var startIndex = srts.length || 0;
     var srtPromises = [];
-    $.each(subtitleUrls, function(i, subtitle) {
+    $.each(SUBTITLE_URLS, function(i, subtitle) {
         if (!srts.hasOwnProperty(i)) {
             var promise = Q($.get(subtitle.attributes.href.textContent, function(videoIndex) {
                 return function(srt) {
@@ -141,8 +146,8 @@ var loadData = function() {
     console.log("called load data");
     var course = getCourse();
     db.get(course).then(function(data) {
-        //check to see if there are more subtitles that need to be fetched and added
-        if (data.data.length < subtitleUrls.length) {
+        //check to see if there are more SUBTITLES that need to be fetched and added
+        if (data.data.length < SUBTITLE_URLS.length) {
             fetchSubtitles(data).then(insertOrUpdateDB).then(function(){
                 console.log("successfully added data");
             });
@@ -206,7 +211,7 @@ var showGUI = function() {
                 var t = o.ref.split("#");
                 var time = parseInt(t[1], 10),
                     video = parseInt(t[0], 10);
-                var section = videoUrls[video].section;
+                var section = VIDEO_URLS[video].section;
                 return {
                     time: parseInt(time, 10),
                     video: video,
@@ -223,7 +228,7 @@ var showGUI = function() {
             .map(function(v, k) {
                 return {
                     videos: v,
-                    header: videoUrls[v[0].video].header
+                    header: VIDEO_URLS[v[0].video].header
                 };
             })
             .value();
@@ -236,10 +241,10 @@ var showGUI = function() {
                 })
                 .sortBy("video")
                 .map(function(v, k) {
-                    var t = videoUrls[v[0].video];
+                    var t = VIDEO_URLS[v[0].video];
                     var quotes = _.chain(v)
                         .sortBy("time").map(function(v) {
-                            return [v.time, subtitles[v.ref]];
+                            return [v.time, SUBTITLES[v.ref]];
                         }).value();
                     return {
                         title: t.text,
@@ -278,4 +283,5 @@ var showGUI = function() {
      
     observer.observe(target, config);
 };
+
 init();
