@@ -1,7 +1,7 @@
 {
   "name": "coursera searcher",
   "dependencies": {
-    "grunt": "^0.4.5",
+    "grunt": "^1.3.0",
     "grunt-chrome-extension-reload": "^0.2.6",
     "grunt-contrib-concat": "^0.5.1",
     "grunt-contrib-handlebars": "^0.10.2",
